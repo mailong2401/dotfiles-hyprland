@@ -8,7 +8,6 @@
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 cd $HOME
 
-
 # Cập nhật hệ thống trước khi cài đặt
 echo "Đang cập nhật hệ thống..."
 sudo pacman -Syu --noconfirm
@@ -32,12 +31,19 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers
 
 sudo systemctl enable iwd.service
 sudo systemctl start iwd.service
 
+echo "Tạo file blacklist nouveau..."
+sudo bash -c 'cat > /etc/modprobe.d/blacklist-nouveau.conf << EOF
+blacklist nouveau
+options nouveau modeset=0
+EOF'
 
+echo "Tạo lại initramfs..."
+sudo mkinitcpio -P
 
 # Clone và cài đặt `yay` nếu chưa tồn tại
 if [ ! -d "yay" ]; then
