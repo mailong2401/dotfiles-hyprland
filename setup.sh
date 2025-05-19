@@ -4,7 +4,8 @@
 #          SETUP SCRIPT
 # =============================
 
-
+# Lấy thư mục chứa script
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
 cd $HOME
 
 
@@ -24,14 +25,17 @@ if [ -z "$WIFI_DEV" ]; then
 fi
 
 echo "Bật thiết bị wifi: $WIFI_DEV"
-ip link set "$WIFI_DEV" up
+sudo ip link set "$WIFI_DEV" up
 
 echo "Hoàn tất."
 
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard
+
+sudo systemctl enable iwd.service
+sudo systemctl start iwd.service
 
 
 
@@ -72,10 +76,14 @@ if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 fi
 
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
-cp -rf .zshrc $HOME/
-cp -rf .config $HOME/
-cp -rf Pictures $HOME/
+# Sao chép các file cấu hình
+echo "Đang sao chép file cấu hình cá nhân..."
+cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
+cp -rf "$SCRIPT_DIR/.config" $HOME/
+cp -rf "$SCRIPT_DIR/Pictures" $HOME/
+echo "Hoàn tất sao chép."
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
