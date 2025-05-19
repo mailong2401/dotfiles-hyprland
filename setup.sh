@@ -5,15 +5,12 @@
 # =============================
 
 
-sudo -v
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-cd ~
+cd $HOME
 
 
 # Cập nhật hệ thống trước khi cài đặt
 echo "Đang cập nhật hệ thống..."
-pacman -Syu --noconfirm
+sudo pacman -Syu --noconfirm
 
 echo "Mở khóa wifi nếu bị block..."
 rfkill unblock wifi
@@ -34,13 +31,8 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg
+sudo pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin
 
-# Tự động trả lời cho qt6-multimedia-backend (mặc định 1)
-# và phonon-qt6-backend (muốn chọn 2)
-# Dùng 'printf' gửi lựa chọn lần lượt cho pacman
-
-printf "1\n2\n" | pacman -S --needed dolphin
 
 
 # Clone và cài đặt `yay` nếu chưa tồn tại
@@ -56,8 +48,8 @@ cd ..
 
 # Cấu hình auto-login cho TTY1
 echo "Cấu hình auto-login cho TTY1..."
-mkdir -p /etc/systemd/system/getty@tty1.service.d/
-echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
+echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
 
 # Cấu hình tự động vào Hyprland khi login vào TTY1
 echo "Thêm cấu hình tự động khởi động Hyprland..."
@@ -67,7 +59,7 @@ fi
 
 # Cài đặt Oh My Zsh không cần tương tác
 echo "Cài đặt Oh My Zsh..."
-yes n | sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
 # Cài đặt các plugin Zsh
@@ -81,9 +73,9 @@ if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
 fi
 
 
-cp -rf .zshrc ~/
-cp -rf .config ~/ 
-cp -rf Pictures ~/
+cp -rf .zshrc $HOME/
+cp -rf .config $HOME/
+cp -rf Pictures $HOME/
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
