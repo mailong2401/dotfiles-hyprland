@@ -97,7 +97,9 @@ pip install --user neovim --break-system-packages
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
-yay -S --noconfirm google-chrome
+yay -S --noconfirm google-chrome arc-gtk-theme
+
+gsettings set org.gnome.desktop.interface gtk-theme "Arc-Dark"
 
 # 🛠️ Cleanup sau khi cài đặt
 echo "Dọn dẹp sau khi cài đặt..."
@@ -105,3 +107,19 @@ rm -rf yay
 
 # ✅ Hoàn thành
 echo "Quá trình cài đặt hoàn tất! Khởi động lại máy để hoàn tất cấu hình."
+read -p "Bạn có muốn reboot không? (y/n): " answer
+
+case "$answer" in
+[Yy]*)
+  echo "Đang reboot..."
+  sudo reboot
+  ;;
+[Nn]*)
+  echo "Hủy reboot."
+  exit 0
+  ;;
+*)
+  echo "Vui lòng nhập y hoặc n."
+  exit 1
+  ;;
+esac
