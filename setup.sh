@@ -32,7 +32,7 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby
 
 sudo systemctl enable iwd.service
 sudo systemctl start iwd.service
@@ -84,6 +84,11 @@ cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
 cp -rf "$SCRIPT_DIR/.config" $HOME/
 cp -rf "$SCRIPT_DIR/Pictures" $HOME/
 echo "Hoàn tất sao chép."
+
+# Cai config neovim
+sudo npm install -g neovim
+gem install neovim
+pip install --user neovim --break-system-packages
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."

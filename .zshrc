@@ -25,3 +25,5 @@ alias ls="lsd"
 alias radeontop="radeontop -c -T"
 alias btop="btop --utf-force"
 alias font="fc-list : family"
+
+export PATH="$HOME/.local/share/gem/ruby/3.4.0/bin:$PATH"
