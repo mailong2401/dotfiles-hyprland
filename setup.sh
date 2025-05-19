@@ -8,6 +8,8 @@
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
+cd ~
+
 
 # Cập nhật hệ thống trước khi cài đặt
 echo "Đang cập nhật hệ thống..."
@@ -32,7 +34,7 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl
+pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg
 
 # Tự động trả lời cho qt6-multimedia-backend (mặc định 1)
 # và phonon-qt6-backend (muốn chọn 2)
