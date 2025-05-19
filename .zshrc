@@ -24,3 +24,4 @@ source $ZSH/oh-my-zsh.sh
 alias ls="lsd"
 alias radeontop="radeontop -c -T"
 alias btop="btop --utf-force"
+alias font="fc-list : family"
