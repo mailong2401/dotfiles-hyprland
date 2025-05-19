@@ -5,8 +5,25 @@
 # =============================
 
 # Cập nhật hệ thống trước khi cài đặt
-echo "🔄 Đang cập nhật hệ thống..."
+echo "Đang cập nhật hệ thống..."
 sudo pacman -Syu --noconfirm
+
+echo "Mở khóa wifi nếu bị block..."
+sudo rfkill unblock wifi
+
+# Lấy tên thiết bị wifi (wlan0 hoặc tương tự)
+WIFI_DEV=$(ip link | grep -E 'wl|wifi' | awk -F: '{print $2}' | tr -d ' ' | head -n1)
+
+if [ -z "$WIFI_DEV" ]; then
+    echo "⚠️ Không tìm thấy thiết bị wifi nào!"
+    exit 1
+fi
+
+echo "Bật thiết bị wifi: $WIFI_DEV"
+sudo ip link set "$WIFI_DEV" up
+
+echo "Hoàn tất."
+
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Kitty, Wofi, Waybar, Zsh..."
