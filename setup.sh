@@ -38,7 +38,7 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers grim slurp
 
 sudo systemctl enable iwd.service
 sudo systemctl start iwd.service
