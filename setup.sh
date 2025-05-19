@@ -6,6 +6,14 @@
 
 # Lấy thư mục chứa script
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
+# Sao chép các file cấu hình
+echo "Đang sao chép file cấu hình cá nhân..."
+cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
+cp -rf "$SCRIPT_DIR/.config" $HOME/
+cp -rf "$SCRIPT_DIR/Pictures" $HOME/
+echo "Hoàn tất sao chép."
+
 cd $HOME
 
 # Cập nhật hệ thống trước khi cài đặt
@@ -19,15 +27,14 @@ rfkill unblock wifi
 WIFI_DEV=$(ip link | grep -E 'wl|wifi' | awk -F: '{print $2}' | tr -d ' ' | head -n1)
 
 if [ -z "$WIFI_DEV" ]; then
-    echo "⚠️ Không tìm thấy thiết bị wifi nào!"
-    exit 1
+  echo "⚠️ Không tìm thấy thiết bị wifi nào!"
+  exit 1
 fi
 
 echo "Bật thiết bị wifi: $WIFI_DEV"
 sudo ip link set "$WIFI_DEV" up
 
 echo "Hoàn tất."
-
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
@@ -47,8 +54,8 @@ sudo mkinitcpio -P
 
 # Clone và cài đặt `yay` nếu chưa tồn tại
 if [ ! -d "yay" ]; then
-    echo "Cloning yay..."
-    git clone https://aur.archlinux.org/yay.git
+  echo "Cloning yay..."
+  git clone https://aur.archlinux.org/yay.git
 fi
 
 cd yay || exit
@@ -59,37 +66,29 @@ cd ..
 # Cấu hình auto-login cho TTY1
 echo "Cấu hình auto-login cho TTY1..."
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
-echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null
 
 # Cấu hình tự động vào Hyprland khi login vào TTY1
 echo "Thêm cấu hình tự động khởi động Hyprland..."
 if ! grep -q "exec hyprland" ~/.bash_profile; then
-    echo 'if [[ -z $DISPLAY ]] && [[ $(tty) == /dev/tty1 ]]; then exec hyprland; fi' >> ~/.bash_profile
+  echo 'if [[ -z $DISPLAY ]] && [[ $(tty) == /dev/tty1 ]]; then exec hyprland; fi' >>~/.bash_profile
 fi
 
 # Cài đặt Oh My Zsh không cần tương tác
 echo "Cài đặt Oh My Zsh..."
 RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-
 # Cài đặt các plugin Zsh
 echo "Cài đặt Zsh Plugins..."
 if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-    git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+  git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
 fi
 
 if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 fi
 
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
-
-# Sao chép các file cấu hình
-echo "Đang sao chép file cấu hình cá nhân..."
-cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
-cp -rf "$SCRIPT_DIR/.config" $HOME/
-cp -rf "$SCRIPT_DIR/Pictures" $HOME/
-echo "Hoàn tất sao chép."
 
 # Cai config neovim
 sudo npm install -g neovim
@@ -106,4 +105,3 @@ rm -rf yay
 
 # ✅ Hoàn thành
 echo "Quá trình cài đặt hoàn tất! Khởi động lại máy để hoàn tất cấu hình."
-
