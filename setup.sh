@@ -4,12 +4,17 @@
 #          SETUP SCRIPT
 # =============================
 
+
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+
 # Cập nhật hệ thống trước khi cài đặt
 echo "Đang cập nhật hệ thống..."
-sudo pacman -Syu --noconfirm
+pacman -Syu --noconfirm
 
 echo "Mở khóa wifi nếu bị block..."
-sudo rfkill unblock wifi
+rfkill unblock wifi
 
 # Lấy tên thiết bị wifi (wlan0 hoặc tương tự)
 WIFI_DEV=$(ip link | grep -E 'wl|wifi' | awk -F: '{print $2}' | tr -d ' ' | head -n1)
@@ -20,14 +25,21 @@ if [ -z "$WIFI_DEV" ]; then
 fi
 
 echo "Bật thiết bị wifi: $WIFI_DEV"
-sudo ip link set "$WIFI_DEV" up
+ip link set "$WIFI_DEV" up
 
 echo "Hoàn tất."
 
 
 # Cài đặt các gói cần thiết
-echo "Cài đặt các gói: Hyprland, Neovim, Kitty, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd
+echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
+pacman -S --needed --noconfirm hyprland neovim foot wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl
+
+# Tự động trả lời cho qt6-multimedia-backend (mặc định 1)
+# và phonon-qt6-backend (muốn chọn 2)
+# Dùng 'printf' gửi lựa chọn lần lượt cho pacman
+
+printf "1\n2\n" | pacman -S --needed dolphin
+
 
 # Clone và cài đặt `yay` nếu chưa tồn tại
 if [ ! -d "yay" ]; then
@@ -42,8 +54,8 @@ cd ..
 
 # Cấu hình auto-login cho TTY1
 echo "Cấu hình auto-login cho TTY1..."
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
-echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
+mkdir -p /etc/systemd/system/getty@tty1.service.d/
+echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null
 
 # Cấu hình tự động vào Hyprland khi login vào TTY1
 echo "Thêm cấu hình tự động khởi động Hyprland..."
@@ -68,6 +80,8 @@ fi
 
 
 cp -rf .zshrc ~/
+cp -rf .config ~/ 
+cp -rf Pictures ~/
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
