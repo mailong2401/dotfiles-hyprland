@@ -52,16 +52,6 @@ EOF'
 echo "Tạo lại initramfs..."
 sudo mkinitcpio -P
 
-# Kiểm tra nếu Flutter đã tồn tại
-if [ -d "$HOME/flutter" ]; then
-  echo "Flutter đã tồn tại ở $HOME/flutter, sẽ cập nhật Flutter"
-  cd "$HOME/flutter"
-  git pull
-else
-  echo "Clone Flutter SDK (bản stable) về $HOME/flutter ..."
-  git clone https://github.com/flutter/flutter.git -b stable "$HOME/flutter"
-fi
-
 # Clone và cài đặt `yay` nếu chưa tồn tại
 if [ ! -d "yay" ]; then
   echo "Cloning yay..."
@@ -107,7 +97,7 @@ pip install --user neovim --break-system-packages
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
-yay -S --noconfirm google-chrome arc-gtk-theme android-studio
+yay -S --noconfirm google-chrome arc-gtk-theme
 
 gsettings set org.gnome.desktop.interface gtk-theme "Arc-Dark"
 
