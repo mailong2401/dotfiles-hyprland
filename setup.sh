@@ -38,7 +38,7 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg dolphin iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers grim slurp unzip xz clang ninja pkg-config mesa cmake jdk-openjdk
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers grim slurp
 
 sudo systemctl enable iwd.service
 sudo systemctl start iwd.service
@@ -97,9 +97,7 @@ pip install --user neovim --break-system-packages
 
 # Cài đặt Google Chrome qua yay
 echo "Cài đặt Google Chrome..."
-yay -S --noconfirm google-chrome arc-gtk-theme
-
-gsettings set org.gnome.desktop.interface gtk-theme "Arc-Dark"
+yay -S --noconfirm google-chrome
 
 # 🛠️ Cleanup sau khi cài đặt
 echo "Dọn dẹp sau khi cài đặt..."
