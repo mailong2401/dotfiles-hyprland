@@ -9,7 +9,6 @@ SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 # Sao chép các file cấu hình
 echo "Đang sao chép file cấu hình cá nhân..."
-cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
 cp -rf "$SCRIPT_DIR/.config" $HOME/
 cp -rf "$SCRIPT_DIR/Pictures" $HOME/
 echo "Hoàn tất sao chép."
@@ -38,7 +37,7 @@ echo "Hoàn tất."
 
 # Cài đặt các gói cần thiết
 echo "Cài đặt các gói: Hyprland, Neovim, Foot, Wofi, Waybar, Zsh..."
-sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers grim slurp
+sudo pacman -S --needed --noconfirm hyprland neovim kitty wofi waybar zsh lsd ttf-jetbrains-mono-nerd brightnessctl swaybg iwd wl-clipboard otf-comicshanns-nerd python-pip npm nodejs ruby noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-gtk fcitx5-qt fcitx5-unikey fcitx5-hangul thunar thunar-archive-plugin nvidia nvidia-utils nvidia-settings linux-headers grim slurp xdg-desktop-portal-hyprland
 
 sudo systemctl enable iwd.service
 sudo systemctl start iwd.service
@@ -88,7 +87,7 @@ if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 fi
 
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
+cp -rf "$SCRIPT_DIR/.zshrc" $HOME/
 
 # Cai config neovim
 sudo npm install -g neovim
