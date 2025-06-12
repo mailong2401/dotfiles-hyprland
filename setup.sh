@@ -62,10 +62,10 @@ echo "Đang build và cài đặt yay..."
 makepkg -si --noconfirm
 cd ..
 
-# Cấu hình auto-login cho TTY1
-echo "Cấu hình auto-login cho TTY1..."
-sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
-echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null
+# # Cấu hình auto-login cho TTY1
+# echo "Cấu hình auto-login cho TTY1..."
+# sudo mkdir -p /etc/systemd/system/getty@tty1.service.d/
+# echo -e "[Service]\nExecStart=\nExecStart=-/sbin/agetty --autologin long --noclear %I \$TERM" | sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf >/dev/null
 
 # Cấu hình tự động vào Hyprland khi login vào TTY1
 echo "Thêm cấu hình tự động khởi động Hyprland..."
