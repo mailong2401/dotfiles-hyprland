@@ -185,11 +185,11 @@ def update_system_curses(stdscr):
 # INSTALL PACKAGAES |
 #--------------------
 def install_packages_curses(stdscr):
-    pkgs = ["hyprland", "wofi", "waybar", 
+    pkgs = ["hyprland", "wofi", "waybar","zsh", 
         "lsd", "ttf-jetbrains-mono-nerd", "brightnessctl", "swaybg",
         "iwd", "wl-clipboard", "otf-comicshanns-nerd", "noto-fonts-cjk",
-        "fcitx5", "fcitx5-configtool", "fcitx5-gtk", "fcitx5-qt",
-        "fcitx5-unikey", "fcitx5-hangul",
+        "fcitx5", "fcitx5-configtool", "fcitx5-gtk", "fcitx5-qt","firefox"
+        "fcitx5-unikey", "fcitx5-hangul","thunar","thunar-archive-plugin",
         "grim", "slurp", "xdg-desktop-portal-hyprland"]
 
     curses.start_color()
