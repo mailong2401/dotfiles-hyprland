@@ -185,12 +185,12 @@ def update_system_curses(stdscr):
 # INSTALL PACKAGAES |
 #--------------------
 def install_packages_curses(stdscr):
-    pkgs = ["hyprland", "wofi", "waybar","zsh", 
+    pkgs = ["hyprland", "wofi", "waybar","zsh","python-pip","npm","nodejs","ruby", 
         "lsd", "ttf-jetbrains-mono-nerd", "brightnessctl", "swaybg",
         "iwd", "wl-clipboard", "otf-comicshanns-nerd", "noto-fonts-cjk",
-        "fcitx5", "fcitx5-configtool", "fcitx5-gtk", "fcitx5-qt","firefox"
+        "fcitx5", "fcitx5-configtool", "fcitx5-gtk", "fcitx5-qt","firefox",
         "fcitx5-unikey", "fcitx5-hangul","thunar","thunar-archive-plugin",
-        "grim", "slurp", "xdg-desktop-portal-hyprland"]
+        "grim", "slurp", "xdg-desktop-portal-hyprland","kitty"]
 
     curses.start_color()
     # Khởi tạo các cặp màu
@@ -380,11 +380,68 @@ def install_oh_my_zsh_and_plugins_curses(stdscr):
     stdscr.refresh()
     stdscr.getch()
 
+#--------------------
+# INSTALL NEOVIM CONFIG |
+#--------------------
+def install_neovim_config_curses(stdscr):
+    stdscr.clear()
+    stdscr.addstr(f"[STEP] {MESSAGES['STEP_INSTALL_PACKAGES'][LANG]}\n", curses.A_BOLD)
+    stdscr.refresh()
+
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Đang tải
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)   # Thành công
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)     # Lỗi
+
+    h, w = stdscr.getmaxyx()
+    commands = [
+        "sudo npm install -g neovim",
+        "gem install neovim",
+        "pip install --user neovim --break-system-packages"
+    ]
+
+    for cmd in commands:
+        # Bắt đầu
+        try:
+            stdscr.addstr(f"[BẮT ĐẦU] {cmd}\n"[:w-1], curses.A_BOLD)
+        except curses.error:
+            pass
+        stdscr.refresh()
+
+        # Đang tải
+        try:
+            stdscr.addstr(f"[ĐANG TẢI] {cmd}\n"[:w-1], curses.color_pair(1))
+        except curses.error:
+            pass
+        stdscr.refresh()
+
+        process = subprocess.Popen(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+        process.wait()
+
+        # Kết quả
+        try:
+            if process.returncode == 0:
+                stdscr.addstr(f"[THÀNH CÔNG] {cmd}\n"[:w-1], curses.color_pair(2))
+            else:
+                stdscr.addstr(f"[LỖI] {cmd}\n"[:w-1], curses.color_pair(3))
+        except curses.error:
+            pass
+        stdscr.refresh()
+
+
+
 def main():
     curses.wrapper(update_system_curses)
     curses.wrapper(install_packages_curses)
     curses.wrapper(install_oh_my_zsh_and_plugins_curses)
     curses.wrapper(copy_configs_curses)
+    curses.wrapper(install_neovim_config_curses)
     answer = input(MESSAGES["REBOOT_PROMPT"][LANG]).lower()
     if answer == "y":
         print(MESSAGES["INFO_REBOOT"][LANG])
