@@ -1,5 +1,5 @@
 {
-  description = "NixOS Hyprland + Dotfiles";
+  description = "NixOS Hyprland + Dotfiles Module";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -15,84 +15,68 @@
     };
   };
 
-  outputs = { self, nixpkgs, dotfiles, quickshell, ... }:
-  let
-    system = "x86_64-linux";
+  outputs = { self, nixpkgs, dotfiles, quickshell, ... }: {
+    # Xuất cấu hình dưới dạng một module tái sử dụng thay vì một system hardcode
+    nixosModules.default = ({ pkgs, ... }: {
 
-    pkgs = import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
-    };
-  in {
-    nixosConfigurations.long = nixpkgs.lib.nixosSystem {
-      inherit system;
+      ############################
+      # Hyprland
+      ############################
+      programs.hyprland = {
+        enable = true;
+        xwayland.enable = true;
+      };
 
-      modules = [
+      ############################
+      # Dotfiles link
+      ############################
+      environment.etc."dotfiles-hyprland".source = dotfiles;
 
-        ./configuration.nix
+      ############################
+      # Qt FIX (QUAN TRỌNG CHO QUICKSHELL)
+      ############################
+      environment.sessionVariables = {
+        QML2_IMPORT_PATH = "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml:${pkgs.qt6.qtmultimedia}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml";
+        QML_IMPORT_PATH  = "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml:${pkgs.qt6.qtmultimedia}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml";
 
-        ({ pkgs, ... }: {
+        QT_PLUGIN_PATH = "${pkgs.qt6.qtbase}/lib/qt-6/plugins";
 
-          ############################
-          # Hyprland
-          ############################
-          programs.hyprland = {
-            enable = true;
-            xwayland.enable = true;
-          };
+        XDG_SESSION_TYPE = "wayland";
+        QT_QPA_PLATFORM = "wayland";
+      };
 
-          ############################
-          # Dotfiles link
-          ############################
-          environment.etc."dotfiles-hyprland".source = dotfiles;
+      ############################
+      # Packages
+      ############################
+      environment.systemPackages = with pkgs; [
+        hyprland
+        kitty
 
-          ############################
-          # Qt FIX (QUAN TRỌNG CHO QUICKHELL)
-          ############################
-          environment.sessionVariables = {
-            QML2_IMPORT_PATH = "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml:${pkgs.qt6.qtmultimedia}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml";
-            QML_IMPORT_PATH  = "${pkgs.qt6.qtdeclarative}/lib/qt-6/qml:${pkgs.qt6.qtmultimedia}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml";
+        quickshell.packages.x86_64-linux.default
 
-            QT_PLUGIN_PATH = "${pkgs.qt6.qtbase}/lib/qt-6/plugins";
+        qt6.qtbase
+        qt6.qtdeclarative
+        qt6.qtmultimedia
+        qt6.qt5compat
+        qt6.qtwayland
+        qt6.qtsvg
+        qt6.qtimageformats
 
-            XDG_SESSION_TYPE = "wayland";
-            QT_QPA_PLATFORM = "wayland";
-          };
+        git
+        wget
+        curl
+        jq
+        bc
+        fish
 
-          ############################
-          # Packages
-          ############################
-          environment.systemPackages = with pkgs; [
-            hyprland
-            kitty
+        nautilus
+        wl-clipboard
+        grim
+        slurp
 
-            quickshell.packages.${system}.default
-
-            qt6.qtbase
-            qt6.qtdeclarative
-            qt6.qtmultimedia
-            qt6.qt5compat
-            qt6.qtwayland
-            qt6.qtsvg
-            qt6.qtimageformats
-
-            git
-            wget
-            curl
-            jq
-            bc
-            fish
-
-            nautilus
-            wl-clipboard
-            grim
-            slurp
-
-            adw-gtk3
-            papirus-icon-theme
-          ];
-        })
+        adw-gtk3
+        papirus-icon-theme
       ];
-    };
+    });
   };
 }
