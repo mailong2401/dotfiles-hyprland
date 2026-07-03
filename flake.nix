@@ -70,6 +70,7 @@
         fish
 
         nautilus
+        starship
         wl-clipboard
         grim
         slurp
