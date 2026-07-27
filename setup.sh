@@ -86,6 +86,7 @@ sudo pacman -S --needed --noconfirm \
   fish \
   adw-gtk-theme \
   bc \
+  ttf-nerd-fonts-symbols \
   qt6-multimedia
 
 # Check and install yay
