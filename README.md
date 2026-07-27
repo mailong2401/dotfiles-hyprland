@@ -90,6 +90,7 @@ git clone https://github.com/mailong2401/cartoon-shell.git ~/.config/quickshell/
 | `xdg-desktop-portal-hyprland` | XDG Desktop Portal for Hyprland |
 | `dunst` | Notification daemon |
 | `jq` | JSON processor |
+| `ttf-nerd-fonts-symbols` | Font Awesome |
 | `qt6-multimedia` | Quickshell plugin |
 
 ### AUR Packages (yay)
