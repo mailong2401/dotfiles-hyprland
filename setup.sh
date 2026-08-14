@@ -4,16 +4,15 @@
 #          SETUP SCRIPT
 # =============================
 
-set -e # Exit on error
-set -u # Exit on undefined variable
+set -e # Thoát nếu gặp lỗi
+set -u # Thoát nếu biến chưa định nghĩa
 
-# Colors for output
+# Màu sắc đầu ra
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m' # Không màu
 
-# Logging functions
 log_info() {
   echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -26,235 +25,208 @@ log_error() {
   echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Get script directory
+# Đảm bảo thiết lập biến môi trường chạy đúng session user phòng lỗi D-Bus
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 
-# Check sudo permissions
-log_info "Checking sudo permissions..."
+# Kiểm tra quyền sudo ban đầu
+log_info "Đang kiểm tra quyền sudo..."
 if ! sudo -v; then
-  log_error "Sudo permissions required to run this script"
+  log_error "Yêu cầu quyền sudo để chạy script này"
   exit 1
 fi
 
-# Backup existing config if present
-log_info "Checking and backing up existing config..."
+# Gửi tín hiệu giữ quyền sudo ngầm để không bị hỏi lại giữa chừng
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+# =========================================================
+# TỰ ĐỘNG TẠO CÁC THƯ MỤC NGƯỜI DÙNG TIÊU CHUẨN
+# =========================================================
+log_info "Đang tiến hành tạo các thư mục cá nhân cá nhân..."
+mkdir -p "$HOME/Music" "$HOME/Documents" "$HOME/Downloads" "$HOME/Pictures" "$HOME/Videos" "$HOME/Desktop" "$HOME/Public" "$HOME/Templates"
+log_info "Đã tạo xong các thư mục cá nhân."
+
+# Sao lưu cấu hình cũ nếu có
+log_info "Đang kiểm tra và sao lưu cấu hình cũ..."
 if [ -d "$HOME/.config/hypr" ] || [ -d "$HOME/.config/kitty" ]; then
-  log_warn "Existing config detected, backing up to: $BACKUP_DIR"
+  log_warn "Phát hiện cấu hình cũ, đang sao lưu vào: $BACKUP_DIR"
   mkdir -p "$BACKUP_DIR"
   [ -d "$HOME/.config" ] && cp -r "$HOME/.config" "$BACKUP_DIR/" 2>/dev/null || true
   [ -d "$HOME/Pictures" ] && cp -r "$HOME/Pictures" "$BACKUP_DIR/" 2>/dev/null || true
-  log_info "Backup completed"
+  log_info "Sao lưu hoàn tất"
 fi
 
-# Copy configuration files
-log_info "Copying configuration files..."
+# Sao chép các tệp cấu hình kèm theo script (nếu có)
+log_info "Đang sao chép các tệp cấu hình..."
 if [ -d "$SCRIPT_DIR/.config" ]; then
   cp -rf "$SCRIPT_DIR/.config" "$HOME/"
-  log_info "Copied .config"
+  log_info "Đã sao chép .config"
 else
-  log_warn "Directory not found: $SCRIPT_DIR/.config"
+  log_warn "Không tìm thấy thư mục: $SCRIPT_DIR/.config"
 fi
 
 if [ -d "$SCRIPT_DIR/Pictures" ]; then
   cp -rf "$SCRIPT_DIR/Pictures" "$HOME/"
-  log_info "Copied Pictures"
+  log_info "Đã sao chép Pictures"
 else
-  log_warn "Directory not found: $SCRIPT_DIR/Pictures"
+  log_warn "Không tìm thấy thư mục: $SCRIPT_DIR/Pictures"
 fi
 
-# Update system
-log_info "Updating system..."
+# Cập nhật hệ thống
+log_info "Đang cập nhật hệ thống..."
 sudo pacman -Syu --noconfirm
 
-# Install required packages
-log_info "Installing packages: Hyprland and related tools..."
+# Cài đặt các gói phần mềm bắt buộc từ kho chính Arch
+log_info "Đang cài đặt các gói phần mềm hệ thống..."
 sudo pacman -S --needed --noconfirm \
-  base-devel \
-  hyprland \
-  kitty \
-  brightnessctl \
-  wl-clipboard \
-  noto-fonts-cjk \
-  nautilus \
-  grim \
-  slurp \
-  xdg-desktop-portal-hyprland \
-  jq \
-  matugen \
-  starship \
-  fish \
-  adw-gtk-theme \
-  bc \
-  ttf-nerd-fonts-symbols \
-  qt6-multimedia \
-  pipewire \
-  pipewire-pulse \
-  pipewire-alsa \
-  pipewire-jack \
-  wireplumber \
-  pavucontrol \
-  bluez \
-  bluez-utils \
-  blueman \
-  fcitx5 \
-  fcitx5-gtk \
-  fcitx5-qt \
-  fcitx5-configtool \
-  fcitx5-unikey \
-  python
+  base-devel hyprland kitty brightnessctl wl-clipboard noto-fonts-cjk \
+  nautilus grim slurp xdg-desktop-portal-hyprland jq matugen starship \
+  fish adw-gtk-theme bc ttf-nerd-fonts-symbols qt6-multimedia pipewire \
+  pipewire-pulse pipewire-alsa pipewire-jack wireplumber pavucontrol \
+  bluez bluez-utils blueman fcitx5 fcitx5-gtk fcitx5-qt fcitx5-configtool \
+  fcitx5-unikey python alsa-utils xdg-user-dirs
 
-# Check and install yay
+# Cập nhật cấu hình thư mục hệ thống xdg
+xdg-user-dirs-update || true
+
+# Kiểm tra và cài đặt yay AUR helper
 if command -v yay &>/dev/null; then
-  log_info "yay already installed, skipping..."
+  log_info "yay đã được cài đặt, bỏ qua..."
 else
-  log_info "Installing yay AUR helper..."
-
-  # Create temporary directory
+  log_info "Đang cài đặt yay AUR helper..."
   TEMP_DIR=$(mktemp -d)
   cd "$TEMP_DIR"
-
-  log_info "Cloning yay from AUR..."
+  # Clone đúng kho Git nguồn của yay (trước đây clone nhầm archlinux.org khiến script thoát sớm do set -e)
   git clone https://aur.archlinux.org/yay.git
-
   cd yay
-  log_info "Building and installing yay..."
   makepkg -si --noconfirm
-
-  # Cleanup
   cd "$HOME"
   rm -rf "$TEMP_DIR"
-  log_info "yay installed successfully"
+  log_info "Cài đặt yay thành công"
 fi
 
-# Install AUR packages
-log_info "Installing quickshell, icon theme, fonts from AUR..."
+# Cài đặt các gói phần mềm từ AUR
+log_info "Đang cài đặt các gói phần mềm từ AUR..."
+# Chạy trực tiếp mà không mượn môi trường root nguy hiểm
 yay -S --needed --noconfirm \
-  quickshell-git \
-  sysstat \
-  papirus-icon-theme \
-  ttf-material-symbols-variable-git \
-  otf-comicshanns-nerd \
-  cava \
-  qt6-5compat
+  quickshell-git sysstat papirus-icon-theme ttf-material-symbols-variable-git \
+  otf-comicshanns-nerd cava qt6-5compat
 
-# Install quickshell configuration
-log_info "Installing quickshell configuration..."
-QUICKSHELL_DIR="$HOME/.config/quickshell/cartoon-shell"
-if [ -d "$QUICKSHELL_DIR" ]; then
-  log_warn "Quickshell config already exists, updating..."
-  cd "$QUICKSHELL_DIR"
-  git pull || log_warn "Unable to update, skipping..."
-  cd "$HOME"
+# =========================================================
+# TỰ ĐỘNG TẢI VÀ PHÂN LOẠI FONT CHỮ (tổng dung lượng ~500MB)
+# =========================================================
+# Mỗi gói pacman/AUR bên dưới sẽ tự tạo thư mục riêng trong /usr/share/fonts
+# (vd: noto-cjk, liberation, Adwaita, encodings...) giống cấu trúc chuẩn của hệ thống.
+log_info "Đang cài đặt các gói font cơ bản từ kho chính Arch..."
+sudo pacman -S --needed --noconfirm \
+  noto-fonts noto-fonts-extra noto-fonts-emoji noto-fonts-cjk \
+  ttf-liberation ttf-dejavu ttf-droid gnu-free-fonts \
+  adobe-source-sans-fonts adobe-source-serif-fonts adobe-source-code-pro-fonts \
+  ttf-jetbrains-mono ttf-fira-code ttf-fira-sans ttf-roboto ttf-roboto-mono \
+  ttf-ubuntu-font-family ttf-opensans cantarell-fonts ttf-carlito ttf-caladea \
+  ttf-hack ttf-inconsolata ttf-anonymous-pro \
+  ttf-cascadia-code ttf-cascadia-mono ttf-ibm-plex \
+  ttf-linux-libertine ttf-gentium-basic \
+  encodings
+
+# --- Font Chữ Viết Tay, Cổ Điển, Display từ AUR ---
+log_info "Đang cài đặt font đẹp từ AUR (viết tay, cổ điển, display)..."
+yay -S --needed --noconfirm \
+  ttf-google-fonts-git \
+  ttf-ms-fonts \
+  ttf-ancient-fonts \
+  ttf-unifont \
+  otf-eb-garamond \
+  ttf-lato \
+  ttf-merriweather \
+  ttf-oswald \
+  ttf-raleway \
+  ttf-cormorant \
+  ttf-crimson-pro \
+  ttf-playfair-display || log_warn "Một số font AUR cài thất bại, bỏ qua và tiếp tục..."
+
+log_info "Đang cài đặt trọn bộ Nerd Fonts (dung lượng lớn, có thể mất vài phút)..."
+if sudo pacman -Sg nerd-fonts &>/dev/null; then
+  # Nhóm gói 'nerd-fonts' trong kho chính Arch chứa hàng chục font đã patch icon
+  sudo pacman -S --needed --noconfirm nerd-fonts
 else
-  mkdir -p "$HOME/.config/quickshell"
-  git clone https://github.com/mailong2401/cartoon-shell.git "$QUICKSHELL_DIR"
-  log_info "Quickshell configuration cloned successfully"
+  log_warn "Không tìm thấy nhóm gói 'nerd-fonts' trong kho chính, thử cài qua AUR..."
+  yay -S --needed --noconfirm nerd-fonts-complete || log_warn "Cài Nerd Fonts thất bại, bỏ qua."
 fi
 
+# Sao chép nguyên thư mục font kèm theo script (nếu có, đặt trong thư mục Fonts/)
+# vào /usr/share/fonts/NerdFonts, giữ nguyên cấu trúc, không phân loại
+MANUAL_FONTS_DIR="$SCRIPT_DIR/Fonts"
+if [ -d "$MANUAL_FONTS_DIR" ]; then
+  log_info "Đang sao chép thư mục font thủ công từ: $MANUAL_FONTS_DIR"
+  sudo mkdir -p /usr/share/fonts/NerdFonts
+  sudo cp -r "$MANUAL_FONTS_DIR"/. /usr/share/fonts/NerdFonts/
+  log_info "Đã sao chép xong font thủ công vào /usr/share/fonts/NerdFonts"
+else
+  log_warn "Không tìm thấy thư mục font thủ công: $MANUAL_FONTS_DIR (bỏ qua bước này)"
+fi
+
+log_info "Đang cập nhật cache font hệ thống (fc-cache)..."
+sudo fc-cache -f
+log_info "Đã cài đặt và phân loại font xong. Kiểm tra tại /usr/share/fonts"
+
+# Cài đặt cấu hình Quickshell từ kho lesang2312/cartoon-shell
+log_info "Đang cài đặt cấu hình cartoon-shell từ lesang2312..."
+QUICKSHELL_DIR="$HOME/.config/quickshell/cartoon-shell"
+
+if [ -d "$QUICKSHELL_DIR" ]; then
+  log_warn "Cấu hình Quickshell đã tồn tại, đang tiến hành dọn dẹp để cài mới..."
+  rm -rf "$QUICKSHELL_DIR"
+fi
+
+mkdir -p "$HOME/.config/quickshell"
+git clone https://github.com/lesang2312/cartoon-shell "$QUICKSHELL_DIR"
+log_info "Tải cấu hình từ lesang2312 thành công!"
+
 # =========================================================
-# Auto-patch known QML bugs in cartoon-shell (idempotent)
+# TỰ ĐỘNG BẬT BLUETOOTH KHI KHỞI ĐỘNG HỆ THỐNG
 # =========================================================
-# 1) OpacitySlider bind "value: KittyOpacityService.displayOpacity" cùng lúc
-#    cho phép kéo tay (onMoved) -> lần kéo đầu tiên phá huỷ binding vĩnh viễn,
-#    khiến thanh trượt lệch khỏi giá trị opacity thật của kitty.
-# 2) KittyOpacityStat.qml dùng "root.isVertical" để định vị popup nhưng
-#    không tự khai báo property này, và StatusTraySectionHorizontal/Vertical
-#    cũng không truyền xuống -> popup luôn neo sai hướng khi ở tray dọc.
-log_info "Applying known quickshell QML fixes (kitty opacity slider + isVertical)..."
+log_info "Đang cấu hình tự động bật Bluetooth..."
+sudo systemctl enable bluetooth.service
 
-python3 - "$QUICKSHELL_DIR" <<'PYEOF'
-import sys, glob, os
+sudo mkdir -p /etc/bluetooth
+if [ -f /etc/bluetooth/main.conf ]; then
+  sudo sed -i 's/#\s*AutoEnable\s*=\s*false/AutoEnable=true/g' /etc/bluetooth/main.conf
+  sudo sed -i 's/#\s*AutoEnable\s*=\s*true/AutoEnable=true/g' /etc/bluetooth/main.conf
+  sudo sed -i 's/AutoEnable\s*=\s*false/AutoEnable=true/g' /etc/bluetooth/main.conf
+else
+  echo -e "[General]\nAutoEnable=true" | sudo tee /etc/bluetooth/main.conf > /dev/null
+fi
+sudo systemctl restart bluetooth.service
 
-qs_dir = sys.argv[1]
-
-def find_file(name):
-    matches = glob.glob(os.path.join(qs_dir, "**", name), recursive=True)
-    return matches[0] if matches else None
-
-# ---- Fix 1 & 2: KittyOpacityStat.qml ----
-f = find_file("KittyOpacityStat.qml")
-if f:
-    with open(f, "r", encoding="utf-8") as fh:
-        content = fh.read()
-    changed = False
-
-    if "property bool isVertical" not in content:
-        old_header = "Item {\n    id: root\n"
-        new_header = "Item {\n    id: root\n\n    property bool isVertical: false\n"
-        if old_header in content:
-            content = content.replace(old_header, new_header, 1)
-            changed = True
-
-    old_slider = (
-        "OpacitySlider {\n"
-        "                    Layout.fillWidth: true\n"
-        "                    from: KittyOpacityService.minOpacity * 100\n"
-        "                    to: KittyOpacityService.maxOpacity * 100\n"
-        "                    value: KittyOpacityService.displayOpacity\n"
-        "                    onMoved: KittyOpacityService.setOpacity(value)\n"
-        "                }"
-    )
-    new_slider = (
-        "OpacitySlider {\n"
-        "                    id: opacitySlider\n"
-        "                    Layout.fillWidth: true\n"
-        "                    from: KittyOpacityService.minOpacity * 100\n"
-        "                    to: KittyOpacityService.maxOpacity * 100\n"
-        "                    onMoved: KittyOpacityService.setOpacity(value)\n\n"
-        "                    Binding {\n"
-        "                        target: opacitySlider\n"
-        "                        property: \"value\"\n"
-        "                        value: KittyOpacityService.displayOpacity\n"
-        "                        when: !opacitySlider.pressed\n"
-        "                        restoreMode: Binding.RestoreBindingOrValue\n"
-        "                    }\n"
-        "                }"
-    )
-    if old_slider in content:
-        content = content.replace(old_slider, new_slider, 1)
-        changed = True
-
-    if changed:
-        with open(f, "w", encoding="utf-8") as fh:
-            fh.write(content)
-        print(f"[fix] patched {f}")
-    else:
-        print(f"[skip] {f} already up to date (or pattern not found)")
-else:
-    print("[warn] KittyOpacityStat.qml not found, skipping")
-
-# ---- Fix 2b: truyền isVertical xuống KittyOpacityStat ----
-for name in ("StatusTraySectionHorizontal.qml", "StatusTraySectionVertical.qml"):
-    f = find_file(name)
-    if not f:
-        print(f"[warn] {name} not found, skipping")
-        continue
-    with open(f, "r", encoding="utf-8") as fh:
-        content = fh.read()
-    old = "KittyOpacityStat {\n            anchors.centerIn: parent\n        }"
-    new = "KittyOpacityStat {\n            anchors.centerIn: parent\n            isVertical: root.isVertical\n        }"
-    if old in content:
-        content = content.replace(old, new, 1)
-        with open(f, "w", encoding="utf-8") as fh:
-            fh.write(content)
-        print(f"[fix] patched {f}")
-    else:
-        print(f"[skip] {f} already up to date (or pattern not found)")
-PYEOF
-
-log_info "Quickshell QML fixes applied."
-
-# Enable Bluetooth service
-log_info "Enabling Bluetooth service..."
-sudo systemctl enable --now bluetooth.service
-
-# Enable audio services (user-level, PipeWire stack)
-log_info "Enabling audio (PipeWire) services..."
+# =========================================================
+# TỰ ĐỘNG KÍCH HOẠT VÀ MỞ ÂM THANH (PIPEWIRE & ALSA)
+# =========================================================
+log_info "Đang cấu hình tự động kích hoạt và bật âm thanh..."
+# Sử dụng đúng DBUS_SESSION để bật dịch vụ dạng --user sạch sẽ
 systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service
 
-# Configure fcitx5 input method environment variables
-log_info "Configuring fcitx5 environment variables..."
+log_info "Đang mở âm lượng tổng và unmute ALSA..."
+sudo alsactl init 2>/dev/null || true
+amixer sset Master unmute 2>/dev/null || true
+amixer sset Master 80% 2>/dev/null || true
+
+# Unmute và chỉnh âm lượng ở tầng PipeWire/WirePlumber (đây mới là tầng thực sự
+# điều khiển output khi dùng pipewire, amixer/alsactl chỉ chỉnh tầng ALSA thấp
+# và có thể không phản ánh đúng sink đang active)
+if command -v wpctl &>/dev/null; then
+  log_info "Đang mở âm lượng tổng và unmute qua WirePlumber (wpctl)..."
+  wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null || true
+  wpctl set-volume @DEFAULT_AUDIO_SINK@ 80% 2>/dev/null || true
+else
+  log_warn "Không tìm thấy wpctl, bỏ qua bước chỉnh âm lượng PipeWire."
+fi
+
+# Cấu hình biến môi trường cho bộ gõ fcitx5
+log_info "Đang cấu hình môi trường fcitx5..."
 mkdir -p "$HOME/.config/environment.d"
 cat >"$HOME/.config/environment.d/fcitx5.conf" <<'EOF'
 GTK_IM_MODULE=fcitx
@@ -264,7 +236,7 @@ SDL_IM_MODULE=fcitx
 GLFW_IM_MODULE=ibus
 EOF
 
-# Autostart fcitx5 on login
+# Tự động khởi chạy fcitx5 khi đăng nhập máy
 mkdir -p "$HOME/.config/autostart"
 cat >"$HOME/.config/autostart/fcitx5.desktop" <<'EOF'
 [Desktop Entry]
@@ -273,31 +245,31 @@ Name=Fcitx5
 Exec=fcitx5 -d
 NoDisplay=true
 EOF
-log_info "fcitx5 will start automatically on next login"
+log_info "fcitx5 đã được thêm vào danh sách tự động chạy"
 
-# Complete
+# Hoàn tất
 log_info "========================================="
-log_info "Installation completed successfully!"
+log_info "Cài đặt hoàn tất thành công!"
 log_info "========================================="
 if [ -d "$BACKUP_DIR" ]; then
-  log_info "Old configuration saved at: $BACKUP_DIR"
+  log_info "Bản sao lưu cấu hình cũ: $BACKUP_DIR"
 fi
-log_info "Please reboot to complete the setup."
+log_info "Hệ thống cần khởi động lại để áp dụng cài đặt mới."
 
-# Ask for reboot
-read -p "Do you want to reboot now? (y/n): " answer
+# Hỏi khởi động lại
+read -p "Bạn có muốn reboot ngay bây giờ không? (y/n): " answer
 
 case "$answer" in
 [Yy]*)
-  log_info "Rebooting..."
+  log_info "Đang khởi động lại máy..."
   sudo reboot
   ;;
 [Nn]*)
-  log_info "Reboot skipped. You can reboot later with: sudo reboot"
+  log_info "Đã bỏ qua reboot. Bạn có thể tự gõ lệnh: sudo reboot sau khi sẵn sàng."
   exit 0
   ;;
 *)
-  log_error "Please enter y or n."
+  log_error "Vui lòng nhập đúng ký tự y hoặc n."
   exit 1
   ;;
 esac
