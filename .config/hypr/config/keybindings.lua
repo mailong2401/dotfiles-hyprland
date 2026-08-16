@@ -7,7 +7,7 @@
 local mainMod = "SUPER"
 
 -- Basic operations
-hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("kitty"))
+hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd("kitty --single-instance"))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", hl.dsp.exit())
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd("thunar"))
@@ -131,15 +131,19 @@ hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = tru
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
 -- Screenshots
+-- Chụp 1 phần màn hình bằng cách kéo chuột (ALT + A)
 hl.bind(
-	"PRINT",
-	hl.dsp.exec_cmd(
-		'FILE=~/Pictures/screenshot_$(date +\'%Y-%m-%d_%H-%M-%S\').png && grim "$FILE" && wl-copy --type image/png < "$FILE" && notify-send "📸 Screenshot" "Đã chụp toàn màn hình\\nẢnh đã lưu & copy"'
-	)
+        "ALT + A",
+        hl.dsp.exec_cmd(
+                'FILE=/home/linux-sieu-cap-pro-cua-le/Screenshorts/screenshot_$(date +\'%Y-%m-%d_%H-%M-%S\').png && grim -g "$(slurp)" "$FILE" && wl-copy < "$FILE"'
+        )
 )
+
+-- Quay video 1 phần màn hình (ALT + SHIFT + A) -> Bấm lần 1 để BẮT ĐẦU / Bấm lần 2 để DỪNG
 hl.bind(
-	mainMod .. " + PRINT",
-	hl.dsp.exec_cmd(
-		'FILE=~/Pictures/screenshot_$(date +\'%Y-%m-%d_%H-%M-%S\').png && grim -g "$(slurp)" "$FILE" && wl-copy < "$FILE" && notify-send "📸 Screenshot" "Đã chụp vùng chọn\\nẢnh đã lưu & copy"'
-	)
+        "ALT + SHIFT + A",
+        hl.dsp.exec_cmd(
+                'pidof wf-recorder && pkill -x wf-recorder || wf-recorder -r 60 -x yuv444p -p preset=ultrafast -p crf=5 -g "$(slurp)" -f /home/linux-sieu-cap-pro-cua-le/Recordings/recording_$(date +\'%Y-%m-%d_%H-%M-%S\').mp4'
+        )
 )
+
