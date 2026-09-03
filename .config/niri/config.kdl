@@ -206,10 +206,10 @@ binds {
     }
 
     Alt+A {
-        spawn-sh "FILE=/home/linux-sieu-cap-pro-cua-le/Screenshorts/screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png && grim -g \"$(slurp)\" \"$FILE\" && wl-copy < \"$FILE\"";
+        spawn-sh "FILE=~/Screenshorts/screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png && grim -g \"$(slurp)\" \"$FILE\" && wl-copy < \"$FILE\"";
     }
     Alt+Shift+A {
-        spawn-sh "pidof wf-recorder && pkill -x wf-recorder || wf-recorder -r 60 -x yuv444p -p preset=ultrafast -p crf=5 -g \"$(slurp)\" -f /home/linux-sieu-cap-pro-cua-le/Recordings/recording_$(date +'%Y-%m-%d_%H-%M-%S').mp4";
+        spawn-sh "pidof wf-recorder && pkill -x wf-recorder || wf-recorder -r 60 -x yuv444p -p preset=ultrafast -p crf=5 -g \"$(slurp)\" -f ~/Recordings/recording_$(date +'%Y-%m-%d_%H-%M-%S').mp4";
     }
     Print { screenshot; }
 
