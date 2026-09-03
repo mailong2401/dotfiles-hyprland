@@ -1,0 +1,20 @@
+# Editor files
+*.swp
+*.swo
+*~
+.*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup directories
+.dotfiles_backup_*/
+
+# Build artifacts
+result
+result-*
+
+# Temporary files
+*.tmp
+*.log

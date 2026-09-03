@@ -1,0 +1,219 @@
+// #######################################################################################
+// NIRI CONFIG — chuyển đổi từ bộ Hyprland (Lua) sang KDL
+// #######################################################################################
+spawn-at-startup "swaybg" "-i" "/home/linux-sieu-cap-pro-cua-le/Pictures/Wallpapers/1384235.jpg" "-m" "fill"
+// =======================================================================================
+// INPUT
+// =======================================================================================
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+    }
+
+    touchpad {
+        natural-scroll
+    }
+
+    mouse {
+        accel-speed 0.2
+    }
+
+    focus-follows-mouse
+}
+
+// =======================================================================================
+// OUTPUTS
+// =======================================================================================
+output "VGA-1" {
+    scale 1.0
+    position x=0 y=0
+}
+
+// =======================================================================================
+// ENVIRONMENT + CURSOR
+// =======================================================================================
+environment {
+    RUST_BACKTRACE "full"
+    COLORBT_SHOW_HIDDEN "1"
+    QT_QPA_PLATFORMTHEME "gtk3"
+    XMODIFIERS "@im=fcitx"
+    QT_IM_MODULE "fcitx"
+    GTK_IM_MODULE "fcitx"
+    SDL_IM_MODULE "fcitx"
+    GLFW_IM_MODULE "ibus"
+}
+
+cursor {
+    xcursor-size 24
+}
+
+// =======================================================================================
+// AUTOSTART (Gộp chung khởi động fcitx5, swaybg và Quickshell)
+// =======================================================================================
+spawn-at-startup "fcitx5" "-d" "--replace"
+//spawn-at-startup "swaybg" "-i" "/home/linux-sieu-cap-pro-cua-le/Pictures/Wallpapers/1384235.jpg" "-m" "fill"
+spawn-sh-at-startup "dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP=Niri && systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP && systemctl --user restart xdg-desktop-portal-gtk xdg-desktop-portal"
+spawn-sh-at-startup "qs -p ~/.config/quickshell/cartoon-shell"
+
+// =======================================================================================
+// LAYOUT & OVERVIEW
+// =======================================================================================
+layout {
+    background-color "transparent"
+    gaps 12
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 2
+        active-color "#5e67ce55"
+        inactive-color "#1a1b2655"
+    }
+    border { off; }
+    shadow {
+        on
+        softness 30
+        spread 3
+        offset x=0 y=4
+        color "#00000088"
+    }
+}
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+overview {
+    zoom 0.4
+    // KHÔNG dùng "transparent" ở đây để tránh lỗi nền đen sì
+    backdrop-color "#1a1b26"
+}
+
+layer-rule {
+    match namespace="^wallpaper$"
+    place-within-backdrop true
+}
+
+// =======================================================================================
+// ANIMATIONS
+// =======================================================================================
+animations {
+    window-open {
+        spring damping-ratio=0.54 stiffness=170 epsilon=0.0001
+    }
+    window-movement {
+        spring damping-ratio=0.54 stiffness=170 epsilon=0.0001
+    }
+    window-resize {
+        spring damping-ratio=0.54 stiffness=170 epsilon=0.0001
+    }
+
+    window-close {
+        duration-ms 220
+        curve "ease-out-quad"
+    }
+
+    workspace-switch {
+        spring damping-ratio=0.7 stiffness=800 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.7 stiffness=800 epsilon=0.0001
+    }
+}
+
+// =======================================================================================
+// KEYBINDINGS
+// =======================================================================================
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+Return hotkey-overlay-title="Terminal: kitty" { spawn "kitty" "--single-instance"; }
+    Mod+Q { close-window; }
+    Mod+M { quit; }
+    Mod+E hotkey-overlay-title="File manager: thunar" { spawn "thunar"; }
+    Mod+V { toggle-window-floating; }
+    Mod+P { expand-column-to-available-width; }
+    Mod+F { fullscreen-window; }
+    Mod+Space hotkey-overlay-title="Launcher panel" {
+        spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call rect getToggle";
+    }
+    Alt+V { spawn "coccoc" "--no-sandbox"; }
+    Ctrl+R { spawn-sh "kitty --hold -e bash -c 'reboot'"; }
+    Alt+P { spawn-sh "kitty --hold -e bash -c 'poweroff'"; }
+    Mod+Z { spawn-sh "kitty --hold -e bash -c 'yazi'"; }
+
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up    { focus-window-up; }
+    Mod+Down  { focus-window-down; }
+
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Down  { move-window-down; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp   cooldown-ms=150 { focus-workspace-up; }
+
+    Mod+D { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call dashboard getToggle"; }
+    Mod+L { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call lock lock"; }
+    Mod+A { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call calendar getToggle"; }
+    Mod+B { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call bluetooth getToggle"; }
+    Mod+C { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call cpu getToggle"; }
+    Mod+R { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call ram getToggle"; }
+    Mod+W { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call weather getToggle"; }
+    Mod+H { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call keybind getToggle"; }
+    Mod+I { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call wifi getToggle"; }
+    Mod+U { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call mixer getToggle"; }
+    Mod+Y { spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call battery getToggle"; }
+
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume -l 2.0 @DEFAULT_AUDIO_SINK@ 5%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"; }
+    XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+    XF86AudioNext        allow-when-locked=true { spawn-sh "playerctl next"; }
+    XF86AudioPause       allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPlay        allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioPrev        allow-when-locked=true { spawn-sh "playerctl previous"; }
+
+    XF86MonBrightnessUp allow-when-locked=true {
+        spawn-sh "brightnessctl -e4 -n2 set 5%+; qs ipc --path ~/.config/quickshell/cartoon-shell call brightness set \"$(awk \"BEGIN {print $(brightnessctl g)/$(brightnessctl m)}\")\"";
+    }
+    XF86MonBrightnessDown allow-when-locked=true {
+        spawn-sh "brightnessctl -e4 -n2 set 5%-; qs ipc --path ~/.config/quickshell/cartoon-shell call brightness set \"$(awk \"BEGIN {print $(brightnessctl g)/$(brightnessctl m)}\")\"";
+    }
+
+    Alt+A {
+        spawn-sh "FILE=/home/linux-sieu-cap-pro-cua-le/Screenshorts/screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png && grim -g \"$(slurp)\" \"$FILE\" && wl-copy < \"$FILE\"";
+    }
+    Alt+Shift+A {
+        spawn-sh "pidof wf-recorder && pkill -x wf-recorder || wf-recorder -r 60 -x yuv444p -p preset=ultrafast -p crf=5 -g \"$(slurp)\" -f /home/linux-sieu-cap-pro-cua-le/Recordings/recording_$(date +'%Y-%m-%d_%H-%M-%S').mp4";
+    }
+    Print { screenshot; }
+
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+Shift+E { quit; }
+}
