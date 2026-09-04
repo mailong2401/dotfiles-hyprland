@@ -133,14 +133,12 @@ binds {
     Mod+Return hotkey-overlay-title="Terminal: kitty" { spawn "kitty" "--single-instance"; }
     Mod+Q { close-window; }
     Mod+M { quit; }
-    Mod+E hotkey-overlay-title="File manager: thunar" { spawn "thunar"; }
+    Mod+E hotkey-overlay-title="File manager: nautilus" { spawn "nautilus"; }
     Mod+V { toggle-window-floating; }
-    Mod+P { expand-column-to-available-width; }
     Mod+F { fullscreen-window; }
     Mod+Space hotkey-overlay-title="Launcher panel" {
         spawn-sh "qs ipc --path ~/.config/quickshell/cartoon-shell call rect getToggle";
     }
-    Alt+V { spawn "coccoc" "--no-sandbox"; }
     Ctrl+R { spawn-sh "kitty --hold -e bash -c 'reboot'"; }
     Alt+P { spawn-sh "kitty --hold -e bash -c 'poweroff'"; }
     Mod+Z { spawn-sh "kitty --hold -e bash -c 'yazi'"; }
