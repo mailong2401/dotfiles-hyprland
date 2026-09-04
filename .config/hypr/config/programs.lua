@@ -5,7 +5,7 @@
 ---@module 'hl'
 
 return {
-	terminal = "kitty",
+	terminal = "kitty --single-instance",
 	fileManager = "thunar",
 	menu = "wofi --show drun",
 }

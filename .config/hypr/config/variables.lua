@@ -5,7 +5,7 @@
 ---@module 'hl'
 
 local mainMod = "SUPER"
-local terminal = "kitty"
+local terminal = "kitty --single-instance"
 local fileManager = "thunar"
 local menu = "wofi --show drun"
 

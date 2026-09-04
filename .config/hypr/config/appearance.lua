@@ -54,3 +54,12 @@ hl.config({
 		disable_hyprland_logo = true,
 	},
 })
+
+-- Kitty tự vẽ độ trong suốt nền của riêng nó (background_opacity trong kitty.conf).
+-- Không tắt rule này thì Hyprland sẽ tự blur nền phía sau kitty mỗi khi opacity < 1,
+-- chồng thêm hiệu ứng blur không mong muốn lên trên độ trong suốt đã chỉnh.
+hl.window_rule({
+	name = "kitty-noblur",
+	match = { class = "kitty" },
+	no_blur = true,
+})
